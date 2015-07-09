@@ -1,6 +1,6 @@
 from random import randint
 def rand():
-    return alltheblobs[randint(len(alltheblobs))]
+    return alltheblobs[randint(0, len(alltheblobs)-1)]
 def get(i):
     if i != None:
         return alltheblobs[i]
