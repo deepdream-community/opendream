@@ -114,15 +114,16 @@ if __name__ == '__main__':
   # run all blobs, adopted from script by
   if args.blob == 'all':
       PIL.Image.fromarray(np.uint8(frame)).save(framepath+'/source.'+ext)
+      j = 1
       for blob in blobs.get():
           frame = deepdream(net, img, end=blob)
-          PIL.Image.fromarray(np.uint8(frame)).save(framepath+'/'+blob+'.'+ext)
-          print j, str(blob)
+          PIL.Image.fromarray(np.uint8(frame)).save(framepath+'/'+blob.replace('/','-')+'.'+ext)
+          print j,'.',len(blobs.get()), str(blob)
   else:
       for i in xrange(args.iterations):
           # save the original as 000.ext and hallucinations as 00i.ext
           # this also checks the save path so that we don't crash after 1 deepdream
-          PIL.Image.fromarray(np.uint8(frame)).save(framepath+'/'+args.blob+'--'+str(i).zfill(3)+'.'+ext)
+          PIL.Image.fromarray(np.uint8(frame)).save(framepath+'/'+args.blob.replace('/', '-')+'--'+str(i).zfill(3)+'.'+ext)
 
           # only in dreams
           frame = deepdream(net, frame, end=args.blob)
