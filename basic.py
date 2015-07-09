@@ -1,17 +1,22 @@
-# imports and basic notebook setup
-from cStringIO import StringIO
+#!/usr/bin/python
+ 
+# math stuff
 import numpy as np
 import scipy.ndimage as nd
+from random import randint
+
+# data stuff
+from cStringIO import StringIO
 import PIL.Image
-# from IPython.display import clear_output, Image, display
 from google.protobuf import text_format
+# system stuff
 import os
 import sys
 import argparse
+# a little sauce
 import caffe
-
-# magic happens here
-from deepdream import showarray, preprocess, deprocess, make_step, deepdream, net
+from deepdream import deepdream, net
+import blobs
 
 
 
@@ -45,7 +50,7 @@ def show(img):
 #
 # passing in arguments is totally 1337 and allows other applications to
 # interface with us. this means that we can automate stuff! yeah!
-# try not to commit  any hardcoded values. if possible, you should be
+# try not to commit any hardcoded values. if possible, you should be
 # passing in all parameters via command line and then setting defaults if they
 # do not exist. argparse is a great library for this, i just did it the quick
 # and dirty way because it was late. 
@@ -58,21 +63,13 @@ def show(img):
 #         utils.py or something
 ##############################################################################
 if __name__ == '__main__':
-  # # first arg is the filename of the image you want to target unintuitive? perhaps.
-  # fn = sys.argv[1]
-  # if not fn:
-  #   print 'no source file given'
-  #   exit()
-  # # ^^^fuck this. it'd be nice to have the option of not using switches,
-  # #    but i have a terrible, terrible feeling about it.
-
-  # get  args if we can. nargs='?' just means it isn't required, default is the default value.
-  parser = argparse.ArgumentParser()
+  # get  args if we can.
   parser = argparse.ArgumentParser()
   parser.add_argument('-f', '--filename', type=str)
   parser.add_argument('-o', '--outputdir', default='out', type=str)
   parser.add_argument('-s', '--scaleCoef', default=0.05, type=float)
   parser.add_argument('-i', '--iterations', default=100, type=int)
+  parser.add_argument('-a', '--blob', default=blobs.rand(), type=str)
   args = parser.parse_args()
 
   if args.filename == None:
@@ -113,13 +110,22 @@ if __name__ == '__main__':
   frame = img
   h, w = frame.shape[:2]
   s = args.scaleCoef # scale coefficient
-  for i in xrange(args.iterations):
-      # save the original as 000.ext and hallucinations as 00i.ext
-      # this also checks the save path so that we don't crash after 1 deepdream
-      PIL.Image.fromarray(np.uint8(frame)).save(framepath+'/'+str(i).zfill(3)+'.'+ext)
 
-      # only in dreams
-      frame = deepdream(net, frame)
+  # run all blobs, adopted from script by
+  if args.blobs == 'all':
+      PIL.Image.fromarray(np.uint8(frame)).save(framepath+'/source.'+ext)
+      for blob in blobs.get():
+          frame = deepdream(net, img, end=blob)
+          PIL.Image.fromarray(np.uint8(frame)).save(framepath+'/'+blob+'.'+ext)
+          print j, str(blob)
+  else:
+      for i in xrange(args.iterations):
+          # save the original as 000.ext and hallucinations as 00i.ext
+          # this also checks the save path so that we don't crash after 1 deepdream
+          PIL.Image.fromarray(np.uint8(frame)).save(framepath+'/'+args.blob+'--'+str(i).zfill(3)+'.'+ext)
 
-      # zoom a little
-      frame = nd.affine_transform(frame, [1-s,1-s,1], [h*s/2,w*s/2,0], order=1)
+          # only in dreams
+          frame = deepdream(net, frame, end=args.blob)
+
+          # zoom a little
+          frame = nd.affine_transform(frame, [1-s,1-s,1], [h*s/2,w*s/2,0], order=1)
