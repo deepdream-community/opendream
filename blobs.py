@@ -1,7 +1,7 @@
 from random import randint
 def rand():
     return alltheblobs[randint(0, len(alltheblobs)-1)]
-def get(i):
+def get(i=None):
     if i != None:
         return alltheblobs[i]
     return alltheblobs
