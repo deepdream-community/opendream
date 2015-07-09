@@ -99,6 +99,12 @@ if __name__ == '__main__':
   if not os.path.exists(framepath):
       os.makedirs(framepath)
 
+
+  # see ya on the other side
+  frame = img
+  h, w = frame.shape[:2]
+  s = args.scaleCoef # scale coefficient
+  
   # code interaction is awesome!
   # uncomment this to fondle the data on open
   # useful so you don't run for hours with faulty params
@@ -106,30 +112,28 @@ if __name__ == '__main__':
   import code
   code.interact(local=locals())
 
-  # see ya on the other side
-  frame = img
-  h, w = frame.shape[:2]
-  s = args.scaleCoef # scale coefficient
-
-  # run all blobs, adopted from script by
+  # run all blobs, adopted from script by Cranial_Vault
   if args.blob == 'all':
       PIL.Image.fromarray(np.uint8(frame)).save(framepath+'/source.'+ext)
+      j = 0
       for blob in blobs.get():
           try:
             frame = deepdream(net, img, end=blob)
-            PIL.Image.fromarray(np.uint8(frame)).save(framepath+'/'+blob+'.'+ext)
-            print j, str(blob)
+            PIL.Image.fromarray(np.uint8(frame)).save(framepath+'/'+blob.replace('/', '-')+'.'+ext)
+            print str(j)+'/'+str(len(blobs.get())), str(blob)
           except ValueError:
             print 'Skipped', str(blob)
             pass
           except KeyError:
             print 'Skipped', str(blob)
             pass
+          j += 1
   else:
+      safeblob = args.blob.replace('/', '-')
       for i in xrange(args.iterations):
           # save the original as 000.ext and hallucinations as 00i.ext
           # this also checks the save path so that we don't crash after 1 deepdream
-          PIL.Image.fromarray(np.uint8(frame)).save(framepath+'/'+args.blob+'--'+str(i).zfill(3)+'.'+ext)
+          PIL.Image.fromarray(np.uint8(frame)).save(framepath+'/'+safeblob+'--'+str(i).zfill(3)+'.'+ext)
 
           # only in dreams
           frame = deepdream(net, frame, end=args.blob)
