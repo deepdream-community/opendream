@@ -16,7 +16,7 @@ import argparse
 # a little sauce
 import caffe
 from deepdream import deepdream, net
-from blobs
+import blobs
 
 
 
