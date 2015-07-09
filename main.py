@@ -112,7 +112,7 @@ if __name__ == '__main__':
   s = args.scaleCoef # scale coefficient
 
   # run all blobs, adopted from script by
-  if args.blobs == 'all':
+  if args.blob == 'all':
       PIL.Image.fromarray(np.uint8(frame)).save(framepath+'/source.'+ext)
       for blob in blobs.get():
           frame = deepdream(net, img, end=blob)
