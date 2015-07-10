@@ -111,19 +111,23 @@ if __name__ == '__main__':
   h, w = frame.shape[:2]
   s = args.scaleCoef # scale coefficient
 
-  # run all blobs, adopted from script by
+  # run all blobs, adopted from script by Cranial_Vault
   if args.blobs == 'all':
       PIL.Image.fromarray(np.uint8(frame)).save(framepath+'/source.'+ext)
       for blob in blobs.get():
           try:
-            frame = deepdream(net, img, end=blob)
-            PIL.Image.fromarray(np.uint8(frame)).save(framepath+'/'+blob+'.'+ext)
-            print j, str(blob)
+            # if we've already generated this image, then don't bother
+            if not os.path.exists(framepath+'/'+blob+'.'+ext):
+                frame = deepdream(net, img, end=blob)
+                PIL.Image.fromarray(np.uint8(frame)).save(framepath+'/'+blob+'.'+ext)
+                print j, str(blob)
+            else:
+                print 'skipping', blob, 'because the output file already exists'
           except ValueError:
-            print 'Skipped', str(blobs[i])
+            print 'ValueError:', str(blobs[i])
             pass
           except KeyError:
-            print 'Skipped', str(blobs[i])
+            print 'KeyError:', str(blobs[i])
             pass
   else:
       for i in xrange(args.iterations):
