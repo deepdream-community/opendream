@@ -122,11 +122,12 @@ if __name__ == '__main__':
       PIL.Image.fromarray(np.uint8(frame)).save(framepath+'/source.'+ext)
       j = 0
       for blob in blobs.get():
+          safeblob = blob.replace('/', '-')
           try:
             # if we've already generated this image, then don't bother
-            if not os.path.exists(framepath+'/'+blob+'.'+ext):
+            if not os.path.exists(framepath+'/'+safeblob+'.'+ext):
                 frame = deepdream(net, img, end=blob)
-                PIL.Image.fromarray(np.uint8(frame)).save(framepath+'/'+blob.replace('/', '-')+'.'+ext)
+                PIL.Image.fromarray(np.uint8(frame)).save(framepath+'/'+safeblob+'.'+ext)
                 print j, str(blob)
             else:
                 print 'skipping', blob, 'because the output file already exists'
