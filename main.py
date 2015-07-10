@@ -126,7 +126,7 @@ if __name__ == '__main__':
             # if we've already generated this image, then don't bother
             if not os.path.exists(framepath+'/'+blob+'.'+ext):
                 frame = deepdream(net, img, end=blob)
-                PIL.Image.fromarray(np.uint8(frame)).save(framepath+'/'+blob+'.'+ext)
+                PIL.Image.fromarray(np.uint8(frame)).save(framepath+'/'+blob.replace('/', '-')+'.'+ext)
                 print j, str(blob)
             else:
                 print 'skipping', blob, 'because the output file already exists'
