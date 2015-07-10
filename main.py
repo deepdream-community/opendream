@@ -132,10 +132,10 @@ if __name__ == '__main__':
             else:
                 print 'skipping', blob, 'because the output file already exists'
           except ValueError:
-            print 'ValueError:', str(blobs[i])
+            print 'ValueError:', str(blob)
             pass
           except KeyError:
-            print 'KeyError:', str(blobs[i])
+            print 'KeyError:', str(blob)
 
             frame = deepdream(net, img, end=blob)
             PIL.Image.fromarray(np.uint8(frame)).save(framepath+'/'+blob.replace('/', '-')+'.'+ext)
