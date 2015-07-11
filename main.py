@@ -16,7 +16,6 @@ import argparse
 # a little sauce
 import caffe
 from deepdream import deepdream, net
-import blobs
 
 
 
@@ -69,7 +68,7 @@ if __name__ == '__main__':
   parser.add_argument('-o', '--outputdir', default='out', type=str)
   parser.add_argument('-s', '--scaleCoef', default=0.05, type=float)
   parser.add_argument('-i', '--iterations', default=100, type=int)
-  parser.add_argument('-a', '--blob', default=blobs.rand(), type=str)
+  parser.add_argument('-a', '--blob', default='all', type=str)
   args = parser.parse_args()
 
   if args.filename == None:
