@@ -105,12 +105,12 @@ if __name__ == '__main__':
   h, w = frame.shape[:2]
   s = args.scaleCoef # scale coefficient
   
-  # code interaction is awesome!
-  # uncomment this to fondle the data on open
-  # useful so you don't run for hours with faulty params
-  # (ctrl+d continues execution)
-  import code
-  code.interact(local=locals())
+  # # code interaction is awesome!
+  # # uncomment this to fondle the data on open
+  # # useful so you don't run for hours with faulty params
+  # # (ctrl+d continues execution)
+  # import code
+  # code.interact(local=locals())
 
   # see ya on the other side
   frame = img
@@ -121,7 +121,7 @@ if __name__ == '__main__':
   if args.blob == 'all':
       PIL.Image.fromarray(np.uint8(frame)).save(framepath+'/source.'+ext)
       j = 0
-      for blob in blobs.get():
+      for blob in net.blobs.keys():
           safeblob = blob.replace('/', '-')
           try:
             # if we've already generated this image, then don't bother
@@ -131,22 +131,12 @@ if __name__ == '__main__':
                 print j, str(blob)
             else:
                 print 'skipping', blob, 'because the output file already exists'
-          except ValueError:
-            print 'ValueError:', str(blob)
+          except ValueError as err:
+            print 'ValueError:', str(blob), err
             pass
-          except KeyError:
-            print 'KeyError:', str(blob)
+          except KeyError as err:
+            print 'KeyError:', str(blob), err
 
-            frame = deepdream(net, img, end=blob)
-            PIL.Image.fromarray(np.uint8(frame)).save(framepath+'/'+blob.replace('/', '-')+'.'+ext)
-            print str(j)+'/'+str(len(blobs.get())), str(blob)
-          except ValueError:
-            print 'Skipped', str(blob)
-            pass
-          except KeyError:
-            print 'Skipped', str(blob)
-            pass
-          j += 1
   else:
       safeblob = args.blob.replace('/', '-')
       for i in xrange(args.iterations):

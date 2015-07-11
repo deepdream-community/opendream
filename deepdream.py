@@ -3,10 +3,11 @@ from cStringIO import StringIO
 import numpy as np
 import scipy.ndimage as nd
 import PIL.Image
-from IPython.display import clear_output, Image, display
 from google.protobuf import text_format
 import cv2
 import caffe
+
+from time import time
 
 def showarray(a, fmt='jpeg'):
     a = np.uint8(np.clip(a, 0, 255))
@@ -31,9 +32,9 @@ net = caffe.Classifier('tmp.prototxt', param_fn,
 
 # a couple of utility functions for converting to and from Caffe's input image layout
 def preprocess(net, img):
-    return np.float32(np.rollaxis(img, 2)[::-1]) - net.transformer.mean['data']
+    return np.subtract(np.float32(np.rollaxis(img, 2)[::-1]), net.transformer.mean['data'])
 def deprocess(net, img):
-    return np.dstack((img + net.transformer.mean['data'])[::-1])
+    return np.dstack((np.add(img, net.transformer.mean['data']))[::-1])
 
 def make_step(net, step_size=1.5, end='inception_4c/output', jitter=32, clip=True):
     '''Basic gradient ascent step.'''
@@ -59,13 +60,17 @@ def make_step(net, step_size=1.5, end='inception_4c/output', jitter=32, clip=Tru
 
 def deepdream(net, base_img, iter_n=10, octave_n=4, octave_scale=1.4, end='inception_4c/output', clip=True, **step_params):
     # prepare base images for all octaves
+    print 'preparing octaves'
+    t = time()
     octaves = [preprocess(net, base_img)]
     for i in xrange(octave_n-1):
         octaves.append(nd.zoom(octaves[-1], (1, 1.0/octave_scale,1.0/octave_scale), order=1))
+    print str(time() - t)+'sec'
     
     src = net.blobs['data']
     detail = np.zeros_like(octaves[-1]) # allocate image for network-produced details
     for octave, octave_base in enumerate(octaves[::-1]):
+        tO = time()
         h, w = octave_base.shape[-2:]
         if octave > 0:
             # upscale details from the previous octave
@@ -73,19 +78,20 @@ def deepdream(net, base_img, iter_n=10, octave_n=4, octave_scale=1.4, end='incep
             detail = nd.zoom(detail, (1, 1.0*h/h1,1.0*w/w1), order=1)
 
         src.reshape(1,3,h,w) # resize the network's input image size
-        src.data[0] = octave_base+detail
+        src.data[0] = np.add(octave_base, detail)
         for i in xrange(iter_n):
+            t = time()
             make_step(net, end=end, clip=clip, **step_params)
             
-            # visualization
-            vis = deprocess(net, src.data[0])
-            if not clip: # adjust image contrast if clipping is disabled
-                vis = vis*(255.0/np.percentile(vis, 99.98))
-            cv2.imshow('image', vis)
-            print octave, i, end, vis.shape
-            clear_output(wait=True)
+            # # visualization
+            # vis = deprocess(net, src.data[0])
+            # if not clip: # adjust image contrast if clipping is disabled
+            #     vis = vis*(255.0/np.percentile(vis, 99.98))
+            print octave, i, end, str(time()-t)+'sec'
             
         # extract details produced on the current octave
-        detail = src.data[0]-octave_base
+        detail = np.subtract(src.data[0], octave_base)
+
+        print 'octave', octave, 'finished in', str(time()-tO)+'sec'
     # returning the resulting image
     return deprocess(net, src.data[0])
