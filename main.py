@@ -11,6 +11,7 @@ from google.protobuf import text_format
 import os
 import sys
 import argparse
+from cStringIO import StringIO
 
 import caffe
 from deepdream import deepdream, net
@@ -27,7 +28,7 @@ except ImportError:
 def show(img, blob):
 	cv2.namedWindow('image_process', cv2.WINDOW_AUTOSIZE)
 	cv2.setWindowTitle('image_process', 'Current Blob: '+blob)
-	open_cv_image = cv2.cvtColor(np.array(img),cv2.COLOR_RGB2BGR) 
+	open_cv_image = np.array(img)
 	open_cv_image = open_cv_image[:, :, ::-1].copy() 
 	cv2.imshow('image_process', open_cv_image.view())
 	cv2.waitKey(25)
@@ -40,7 +41,7 @@ def show(img, blob):
 #                                -z [0/1] -p [0/1] -g [0/1]
 # Arguments:
 # '-f', '--filename'  : Input file
-# ''-o', '--outputdir': Output directory
+# '-o', '--outputdir': Output directory
 # '-s', '--scaleCoef' : Scale Coefficient (default=0.5)
 # '-i', '--iterations': Iterations (default=100)
 # '-b', '--blob'      : Blob name (default=random)
@@ -72,7 +73,9 @@ if __name__ == '__main__':
 	caffe.set_device(0)
 
   # PIL is stupid, go away PIL
-  img = np.float32(PIL.Image.open(args.filename))
+  f = open(args.filename,"rb")
+  rawImage = f.read()
+  img = np.float32(PIL.Image.open(StringIO(rawImage)).convert("RGB"))
   print 'Loaded', args.filename
 
   # split file name so we can make a special folder
