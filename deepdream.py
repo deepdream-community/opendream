@@ -4,7 +4,6 @@ import numpy as np
 import scipy.ndimage as nd
 import PIL.Image
 from google.protobuf import text_format
-import cv2
 import caffe
 
 from time import time
@@ -59,6 +58,8 @@ def make_step(net, step_size=1.5, end='inception_4c/output', jitter=32, clip=Tru
         src.data[:] = np.clip(src.data, -bias, 255-bias)    
 
 def deepdream(net, base_img, iter_n=10, octave_n=4, octave_scale=1.4, end='inception_4c/output', clip=True, **step_params):
+    
+    currentblob = end
     # prepare base images for all octaves
     print 'Preparing octaves'
     t = time()
@@ -69,29 +70,34 @@ def deepdream(net, base_img, iter_n=10, octave_n=4, octave_scale=1.4, end='incep
     
     src = net.blobs['data']
     detail = np.zeros_like(octaves[-1]) # allocate image for network-produced details
+    
+
+    print "*DEBUG* Current Blob: "+str(currentblob)
     for octave, octave_base in enumerate(octaves[::-1]):
-        tO = time()
+    	tO = time()
         h, w = octave_base.shape[-2:]
         if octave > 0:
-            # upscale details from the previous octave
-            h1, w1 = detail.shape[-2:]
-            detail = nd.zoom(detail, (1, 1.0*h/h1,1.0*w/w1), order=1)
-
-        src.reshape(1,3,h,w) # resize the network's input image size
-        src.data[0] = np.add(octave_base, detail)
-        for i in xrange(iter_n):
-            t = time()
-            make_step(net, end=end, clip=clip, **step_params)
-            
-            # # visualization
-            # vis = deprocess(net, src.data[0])
-            # if not clip: # adjust image contrast if clipping is disabled
-            #     vis = vis*(255.0/np.percentile(vis, 99.98))
-            print octave, i, end, str(time()-t)+'sec'
-            
-        # extract details produced on the current octave
-        detail = np.subtract(src.data[0], octave_base)
-
+        	# upscale details from the previous octave
+        	h1, w1 = detail.shape[-2:]
+        	detail = nd.zoom(detail, (1, 1.0*h/h1,1.0*w/w1), order=1)
+              
+        if currentblob not in ('loss3/classifier','prob'):	#skip: reshape fails on 'loss3/classifier' and 'prob'	
+			src.reshape(1,3,h,w) # resize the network's input image size
+			src.data[0] = np.add(octave_base, detail)	
+		
+			for i in xrange(iter_n):
+				t = time()
+				make_step(net, end=end, clip=clip, **step_params)
+			
+				# # visualization
+				# vis = deprocess(net, src.data[0])
+				# if not clip: # adjust image contrast if clipping is disabled
+				#     vis = vis*(255.0/np.percentile(vis, 99.98))
+				print octave, i, end, str(time()-t)+'sec'
+			
+				# extract details produced on the current octave
+				detail = np.subtract(src.data[0], octave_base)
+			
         print 'Octave', octave, 'finished in', str(time()-tO)+'s'
     # returning the resulting image
     return deprocess(net, src.data[0])
