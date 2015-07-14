@@ -15,14 +15,17 @@ import argparse
 import caffe
 from deepdream import deepdream, net
 import random
-import cv2
+try:
+	import cv2
+except ImportError:
+	raise Exception ("OpenCV is not available:")
 
 ###############################################################################
 # openCV Preview Window
 # ------------
 ##############################################################################
-cv2.namedWindow('image_process', cv2.WINDOW_AUTOSIZE)
 def show(img, blob):
+	cv2.namedWindow('image_process', cv2.WINDOW_AUTOSIZE)
 	cv2.setWindowTitle('image_process', 'Current Blob: '+blob)
 	open_cv_image = cv2.cvtColor(np.array(img),cv2.COLOR_RGB2BGR) 
 	open_cv_image = open_cv_image[:, :, ::-1].copy() 
@@ -34,7 +37,7 @@ def show(img, blob):
 # -------------
 # Usage: Usage: $ python main.py -f [source/filename.jpg] -o [output dir] 
 #                                -s [scale] -i [iterations] -b [all/blobname] 
-#                                -z [0/1] -p [0/1]
+#                                -z [0/1] -p [0/1] -g [0/1]
 # Arguments:
 # '-f', '--filename'  : Input file
 # ''-o', '--outputdir': Output directory
@@ -43,6 +46,7 @@ def show(img, blob):
 # '-b', '--blob'      : Blob name (default=random)
 # '-z', '--zoom'      : Zoom (default=0)
 # '-p', '--preview'   : Preview Window (default=0)
+# '-g', '--gpu'		  : Enable GPU (default=0, Assumes device ID:0)
 ##############################################################################
 
 if __name__ == '__main__':
@@ -55,12 +59,17 @@ if __name__ == '__main__':
   parser.add_argument('-b', '--blob', default=random.choice(net.blobs.keys()), type=str)
   parser.add_argument('-z', '--zoom', default=0, type=int)
   parser.add_argument('-p', '--preview', default=0, type=int)
+  parser.add_argument('-g', '--gpu', default=0, type=int)
   args = parser.parse_args()
   
   if args.filename == None:
     print 'Error: No source file'
-    print 'Usage: $ python main.py -f [source/filename.jpg] -o [output dir] -s [scale] -i [iterations] -b [all/blobname] -z [0/1] -p [0/1]'
+    print 'Usage: $ python main.py -f [source/filename.jpg] -o [output dir] -s [scale] -i [iterations] -b [all/blobname] -z [0/1] -p [0/1] -g [0/1]'
     exit()
+    
+  if args.gpu == 1:
+	caffe.set_mode_gpu()
+	caffe.set_device(0)
 
   # PIL is stupid, go away PIL
   img = np.float32(PIL.Image.open(args.filename))
