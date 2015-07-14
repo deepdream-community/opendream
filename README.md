@@ -23,19 +23,26 @@ All the heavy lifting is done here, or at least should be done here.
 ### main.py
 This basically just wraps deepdream.py and it mostly came from the google sample. Additionally it adds much needed argument support. The current options are as follows
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-f', '--filename', type=str)
-    parser.add_argument('-o', '--outputdir', default='out', type=str)
-    parser.add_argument('-s', '--scaleCoef', default=0.05, type=float)
-    parser.add_argument('-i', '--iterations', default=100, type=int)
-    parser.add_argument('-b', '--blob', default=random.choice(net.blobs.keys()), type=str)
-    parser.add_argument('-z', '--zoom', default=0, type=int)
-    args = parser.parse_args()
+	Usage: Usage: $ python main.py -f [source/filename.jpg] -o [output dir] 
+                                   -s [scale] -i [iterations] -b [all/blobname] 
+		                           -z [0/1] -p [0/1]
+	Arguments:
+		'-f', '--filename'  : Input file
+		'-o', '--outputdir' : Output directory
+		'-s', '--scaleCoef' : Scale Coefficient (default=0.5)
+		'-i', '--iterations': Iterations (default=100)
+		'-b', '--blob'      : Blob name (default=random)
+		-z', '--zoom'       : Zoom (default=0)
+		'-p', '--preview'   : Preview Window (default=0)
     
-    Run all blobs:
-    $ python main.py -f source/file.jpg --blob all
-    
-filename is the only one that's required at this time. blob sets to a random blob by default, or dreams once on all blobs if set to all (this was previously done by tryallblobs.py).
+    Examples:
+	    Run all blobs with defaults:
+    	$ python main.py -f source/file.jpg --blob all
+    	
+    	Run all blobs with 5 iterations zoom off and preview on:
+    	$ python main.py -f source/file.jpt -o output -i 5 -b all -z 0 -p 1
+    	    
+Filename is the only one that's required at this time. blob sets to a random blob by default, or dreams once on all blobs if set to all.
 
 ### opticalflow.py
 This is a script I found posted on reddit once. I've never used it, but in theory it makes a smooth video out of deepdream output and it is really damn cool. If anyone knows who wrote this, they should really be credited here.
