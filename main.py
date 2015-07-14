@@ -16,7 +16,8 @@ import argparse
 # a little sauce
 import caffe
 from deepdream import deepdream, net
-import blobs
+import random
+#import blobs
 
 
 
@@ -69,17 +70,18 @@ if __name__ == '__main__':
   parser.add_argument('-o', '--outputdir', default='out', type=str)
   parser.add_argument('-s', '--scaleCoef', default=0.05, type=float)
   parser.add_argument('-i', '--iterations', default=100, type=int)
-  parser.add_argument('-a', '--blob', default=blobs.rand(), type=str)
+  parser.add_argument('-b', '--blob', default=random.choice(net.blobs.keys()), type=str)
+  parser.add_argument('-z', '--zoom', default=0, type=int)
   args = parser.parse_args()
 
   if args.filename == None:
-    print 'no source file'
-    print 'ex: $ python basic.py -f source/file.jpg'
+    print 'Error: No source file'
+    print 'Usage: $ python main.py -f [source/filename.jpg] -o [output dir] -s [scale] -i [iterations] -b [all/blobname] -z [0/1]'
     exit()
 
   # PIL is stupid, go away PIL
   img = np.float32(PIL.Image.open(args.filename))
-  print 'loaded', args.filename
+  print 'Loaded', args.filename
 
 
   # split file name so we can make a special folder
@@ -95,7 +97,7 @@ if __name__ == '__main__':
   # # for the love of god, lets not crash after the first
   # # deepdream due to an ENOENT error... (-_-)
   # show(img)
-  print "i will save at", framepath
+  print "Output: ", framepath
   if not os.path.exists(framepath):
       os.makedirs(framepath)
 
@@ -130,7 +132,7 @@ if __name__ == '__main__':
                 PIL.Image.fromarray(np.uint8(frame)).save(framepath+'/'+safeblob+'.'+ext)
                 print j, str(blob)
             else:
-                print 'skipping', blob, 'because the output file already exists'
+                print 'Skipping', blob, 'Output file exists.'
           except ValueError as err:
             print 'ValueError:', str(blob), err
             pass
@@ -148,4 +150,5 @@ if __name__ == '__main__':
           frame = deepdream(net, frame, end=args.blob)
 
           # zoom a little
-          frame = nd.affine_transform(frame, [1-s,1-s,1], [h*s/2,w*s/2,0], order=1)
+          if args.zoom == 1:
+           frame = nd.affine_transform(frame, [1-s,1-s,1], [h*s/2,w*s/2,0], order=1)
