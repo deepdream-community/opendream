@@ -60,7 +60,7 @@ def make_step(net, step_size=1.5, end='inception_4c/output', jitter=32, clip=Tru
 
 def deepdream(net, base_img, iter_n=10, octave_n=4, octave_scale=1.4, end='inception_4c/output', clip=True, **step_params):
     # prepare base images for all octaves
-    print 'preparing octaves'
+    print 'Preparing octaves'
     t = time()
     octaves = [preprocess(net, base_img)]
     for i in xrange(octave_n-1):
@@ -92,6 +92,6 @@ def deepdream(net, base_img, iter_n=10, octave_n=4, octave_scale=1.4, end='incep
         # extract details produced on the current octave
         detail = np.subtract(src.data[0], octave_base)
 
-        print 'octave', octave, 'finished in', str(time()-tO)+'sec'
+        print 'Octave', octave, 'finished in', str(time()-tO)+'s'
     # returning the resulting image
     return deprocess(net, src.data[0])
