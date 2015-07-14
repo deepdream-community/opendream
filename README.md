@@ -32,7 +32,7 @@ This basically just wraps deepdream.py and it mostly came from the google sample
 		'-s', '--scaleCoef' : Scale Coefficient (default=0.5)
 		'-i', '--iterations': Iterations (default=100)
 		'-b', '--blob'      : Blob name (default=random)
-		'-z', '--zoom'       : Zoom (default=0)
+		'-z', '--zoom'      : Zoom (default=0)
 		'-p', '--preview'   : Preview Window (default=0)
     
     Examples:
