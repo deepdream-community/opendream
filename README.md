@@ -23,7 +23,7 @@ All the heavy lifting is done here, or at least should be done here.
 ### main.py
 This basically just wraps deepdream.py and it mostly came from the google sample. Additionally it adds much needed argument support. The current options are as follows
 
-	Usage: Usage: $ python main.py -f [source/filename.jpg] -o [output dir] 
+	Usage: $ python main.py -f [source/filename.jpg] -o [output dir] 
                                    -s [scale] -i [iterations] -b [all/blobname] 
 		                           -z [0/1] -p [0/1]
 	Arguments:
