@@ -22,7 +22,8 @@ import cv2
 # ------------
 ##############################################################################
 cv2.namedWindow('image_process', cv2.WINDOW_AUTOSIZE)
-def show(img):
+def show(img, blob):
+	cv2.setWindowTitle('image_process', 'Current Blob: '+blob)
 	open_cv_image = cv2.cvtColor(np.array(img),cv2.COLOR_RGB2BGR) 
 	open_cv_image = open_cv_image[:, :, ::-1].copy() 
 	cv2.imshow('image_process', open_cv_image.view())
@@ -90,11 +91,12 @@ if __name__ == '__main__':
       j = 0
       for blob in net.blobs.keys():
           
+          safeblob = blob.replace('/', '-')
+          
           #Show preview window
           if args.preview == 1:
-  			show(PIL.Image.fromarray(np.uint8(frame)))
+  			show(PIL.Image.fromarray(np.uint8(frame)), safeblob)
           
-          safeblob = blob.replace('/', '-')
           try:
             # if we've already generated this image, then don't bother
             if not os.path.exists(framepath+'/'+safeblob+'.'+ext):
@@ -113,7 +115,7 @@ if __name__ == '__main__':
       for i in xrange(args.iterations):
           #Show preview window
           if args.preview == 1:
-  			show(PIL.Image.fromarray(np.uint8(frame)))
+  			show(PIL.Image.fromarray(np.uint8(frame)), safeblob)
           
           # save the original as 000.ext and hallucinations as 00i.ext
           # this also checks the save path so that we don't crash after 1 deepdream
