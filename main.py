@@ -33,7 +33,7 @@ def show(img):
 # -------------
 # Usage: Usage: $ python main.py -f [source/filename.jpg] -o [output dir] 
 #                                -s [scale] -i [iterations] -b [all/blobname] 
-#                                -z [0/1]
+#                                -z [0/1] -p [0/1]
 # Arguments:
 # '-f', '--filename'  : Input file
 # ''-o', '--outputdir': Output directory
@@ -58,7 +58,7 @@ if __name__ == '__main__':
   
   if args.filename == None:
     print 'Error: No source file'
-    print 'Usage: $ python main.py -f [source/filename.jpg] -o [output dir] -s [scale] -i [iterations] -b [all/blobname] -z [0/1]'
+    print 'Usage: $ python main.py -f [source/filename.jpg] -o [output dir] -s [scale] -i [iterations] -b [all/blobname] -z [0/1] -p [0/1]'
     exit()
 
   # PIL is stupid, go away PIL
